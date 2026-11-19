@@ -81,3 +81,5 @@ This took a while, but going through the beautified code, I found a few URLs sit
 <p align="left">
 <img width="1280" height="720" alt="Cover" src="images/tasks.png" /> 
 </p>
+
+At this point I found it way too difficult to debug on the Kali machine. After some searching, multiple sources suggested to open the same file on a Win11 machine, so I did. 
