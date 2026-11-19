@@ -17,3 +17,7 @@ Forela is in need of your assistance. They were informed by an employee that the
   <img width="1280" height="720" alt="Cover" src="images/folder.jpeg" />
 </p>
 
+The folder inside malware contains `nsis-installer.exe`. NSIS is a real tool for building Windows installers, and the file's type confirms this installer was built with it. The malware presents itself as a normal installer, but it packs a malicious payload.
+
+Task 1 asks us to give the imphash of the .exe malware. In order to do that, I will get the SHA256 hash and then upload it at virus total. I'm gonna use sha256sum on the console, and then I can input that into virus total.
+
