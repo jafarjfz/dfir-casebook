@@ -61,5 +61,13 @@ But, in the `resources` folder there's 2 files, `app.asar` and `elevate.exe` whi
 <img width="1280" height="720" alt="Cover" src="images/asar.jpeg" /> 
 </p>
 
-So, the file contains the package.json we needed, and there's also a .js file, which is also noteworthy. How and why did the malicious actor use the .js file? It could be used for local scripts to activate local scripts. Let's use cat command and see the license needed for task 4, which we can identify as an `ISC` License.
+So, the file contains the package.json we needed, and there's also a .js file, which is also noteworthy. How and why did the malicious actor use the .js file? It could be used to activate local scripts. Let's use cat command and see the license needed for task 4, which we can identify as an `ISC` License. There's also some dependencies that are used here, I'll install them in order to analyze the program.
 
+- Task 5 states that the malware connects back to a C2 address during execution. What is the domain used for C2? 
+My first instinct is to check the .js file and unfortunately, It's obfuscated, so reading through is not an option.
+
+<p align="left">
+<img width="1280" height="720" alt="Cover" src="images/result.png" /> 
+</p>
+
+Then, I tried to deobfuscate the code via webcrack but that was unsuccessful. So I decided to open it in VS Code. It opened the entire code in 1 line, so after using js-beautify, I was met with a 2 thousand line code.
