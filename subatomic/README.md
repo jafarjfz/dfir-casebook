@@ -71,3 +71,13 @@ My first instinct is to check the .js file and unfortunately, It's obfuscated, s
 </p>
 
 Then, I tried to deobfuscate the code via webcrack but that was unsuccessful. So I decided to open it in VS Code. It opened the entire code in 1 line, so after using js-beautify, I was met with a 2 thousand line code.
+
+<p align="left">
+<img width="1280" height="720" alt="Cover" src="images/debugger.png" /> 
+</p>
+
+This took a while, but going through the beautified code, I found a few URLs sitting in readable parts. Two of them stood out: https://ipinfo.io/json and https://illitmagnetic.site/api/. The first is a public service that just returns your IP address, so I figured the malware uses it to look up the victim’s location. The second is a domain I didn’t recognize, and with the /api/ path it looks like where the malware would send data and get instructions, which is what a C2 does. So the C2 domain is `illitmagnetic.site.` Task 6 asks for the address which gets the public domain, which is the link I mentioned earlier. Therefore, the answer to ask 6 is `https://ipinfo.io/json`.
+
+<p align="left">
+<img width="1280" height="720" alt="Cover" src="images/tasks.png" /> 
+</p>
