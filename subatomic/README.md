@@ -82,4 +82,22 @@ This took a while, but going through the beautified code, I found a few URLs sit
 <img width="1280" height="720" alt="Cover" src="images/tasks.png" /> 
 </p>
 
-At this point I found it way too difficult to debug on the Kali machine. After some searching, multiple sources suggested to open the same file on a Win11 machine, so I did. 
+At this point I found it way too difficult to debug on the Kali machine. After some searching, multiple sources suggested to open the same file on a Win11 machine, so I did. After running the install scripts for `sqlite3` and `@primno/dpapi` I opened the file in my Windows 11 VM from my homelab. I opened the archive using 7zip.
+
+<p align="left">
+<img width="1280" height="720" alt="Cover" src="win11vm.png" /> 
+</p>
+
+- Task 7 states that the malware is looking for a particular path to connect back on. What is the full URL used for C2 of this malware?
+
+Now, I decided to debug the file using Visual Studio Code as earlier, and switching to a Win11 Machine proved useful since this app was meant to run on Windows and not Linux. After a few attempts, I managed to catch the de-obfuscated code whilst running and pausing debugger. 
+
+<p align="left">
+<img width="1280" height="720" alt="Cover" src="deobf.png" /> 
+</p>
+
+Now I can see about 900 lines of javaScript. This code is very interesting with multiple malicious functions. I assume these are the functions used to steal user data, as the name implies. The names suggest multiple sources of data such as passwords, cookies, autofills, aimed at Browsers, Firefox and Discord, also with some injection scripts
+
+<p align="left">
+<img width="1280" height="720" alt="Cover" src="funct.png" /> 
+</p>
