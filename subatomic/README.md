@@ -240,3 +240,20 @@ async function discordInjection() {
 };
 ```
 In the upper part of the code, the const path has the `modules` part, and the name of the module is `discord_desktop_core-1`, which is the answer to Task 13.
+
+# Conclusion
+
+- This malware harvests Discord authentication tokens, system details, and browser data (such as saved passwords, cookies, and autofill information) and exfiltrates them to a Command and Control (C2) server
+- This software uses obfuscation and evasion (Evading sandboxes and analyst machines) in order to avoid being caught and remain hidden. 
+- The file itself is presented as an installer software but in reality unpacks a malicious Electron application, so it's a trojan which is an infostealer.
+- Once executed, it trojanizes the local Discord desktop client by injecting malicious JavaScript into Discord's core module (discord_desktop_core-1\index.js), ensuring persistence and spreading spam links to the victim's contacts.
+
+## Skills Used
+- Malware analysis (static and dynamic)
+- Unpacking NSIS installers and extracting Electron ASAR archives
+- JavaScript deobfuscation and debugging in VS Code
+- Identifying sandbox-evasion and anti-analysis techniques
+- Extracting IOCs (C2 domain, GUID, infected Discord module)
+- Hash and signature analysis (SHA256, imphash, VirusTotal)
+- Tools: 7-Zip, asar, npm, Node.js, VS Code, js-beautify, webcrack
+- Environment: Kali Linux and a Windows 11 VM
