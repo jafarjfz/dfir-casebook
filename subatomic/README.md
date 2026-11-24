@@ -11,7 +11,11 @@ Forela is in need of your assistance. They were informed by an employee that the
 
 ## Solution and Analysis:
 
-  The current task at hand is to find out how the malware performs and keep sending messages through the discord account. Afterwards, we can use that knowledge to stop it and regain control of the discord account. We are presented with a zip file, and unzipping it shows 2 files, a readme from HTB and the malware zip.
+> [!NOTE]
+> I make assumptions to explain my reasoning and train of thought during the solution phase. All of these tests are performed on secure VM's in my personal Homelab, which you can check on my profile.
+
+
+The current task at hand is to find out how the malware performs and keep sending messages through the discord account. Afterwards, we can use that knowledge to stop it and regain control of the discord account. We are presented with a zip file, and unzipping it shows 2 files, a readme from HTB and the malware zip.
 
 <p align="center">
   <img width="1280" height="720" alt="Image" src="images/folder.jpeg" />
@@ -239,7 +243,17 @@ async function discordInjection() {
     return infectedDiscords;
 };
 ```
-In the upper part of the code, the const path has the `modules` part, and the name of the module is `discord_desktop_core-1`, which is the answer to Task 13.
+In the upper part of the code, the const path has the `modules` part. In here, we can observe that the infected file is index.js and the name of the module is `discord_desktop_core-1`, which is the answer to Task 13.
+
+## Remediation
+
+The employee changed their password but the messages kept going out. Looking at `discordInjection()`, I think I know why: the malware overwrites `index.js` in `discord_desktop_core-1`, kills Discord, and restarts it through `Update.exe`. So the client stays infected, and I assume any new password or token just gets stolen again.
+
+To fix it:
+1. Disconnect the machine and block `illitmagnetic.site`.
+2. Uninstall Discord and delete leftover Discord folders in `%LOCALAPPDATA%`, then reinstall to replace the tampered `index.js`.
+3. From a clean device, change the password, log out of all devices, and enable 2FA.
+4. Change saved browser passwords too, since the malware also steals those.
 
 # Conclusion
 
