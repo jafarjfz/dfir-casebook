@@ -38,13 +38,13 @@ Here, we can see the results on virus total, and then grab the imphash from the 
 In the lower section of the tab, we can view the program name is `Windows Update Assistant`, under the SpcSpOpusInfo data structure.
 
 - Task 3 asks us for a unique GUID that the malware uses during installation. Since this is a NSIS binary file type, let's see the compressed installation files using zip functions in the Linux Console.
-I used 7zip and found dll files and a unins inside:
+I used 7zip and found dll files and a uninstaller inside:
 <p align="center">
 <img width="1280" height="720" alt="Cover" src="images/zip.jpeg" />
 </p>
 Most of these are dll files but the one that grabs my attention is app-32.7z. Why would the malicious actor put another zip inside? Perhaps it's to compress the payload and increase efficiency.
 
-Now, to find the GUID, we look for .nsi file, since Nullsoft installers usually put the instructions of the installation inside. The 7zip command did not show the file, and after some searching I found out newer versions of 7zip do not include these scripts. Therefore, I had to search the files, and in the uninstaller file, the unique GUID is `cfbc383d-9aa0-5771-9485-7b806e8442d5`. It's mentioned multiple times. The unique GUID is same to avoid installation conflicts.
+Now, to find the GUID, we look for .nsi file, since Nullsoft installers usually put the instructions of the installation inside. The 7zip command did not show the file, and after some searching I found out Linux versions of 7zip do not include these scripts. Therefore, I had to search the files, and in the uninstaller file, the unique GUID is `cfbc383d-9aa0-5771-9485-7b806e8442d5`. It's mentioned multiple times. The unique GUID is the same to avoid installation conflicts.
 
 After, I decided to extract the file into another folder to take a closer look at the files inside
 <p align="center">
@@ -70,13 +70,13 @@ My first instinct is to check the .js file and unfortunately, It's obfuscated, s
 <img width="1280" height="720" alt="Cover" src="images/result.png" /> 
 </p>
 
-Then, I tried to deobfuscate the code via webcrack but that was unsuccessful. So I decided to open it in VS Code. It opened the entire code in 1 line, so after using js-beautify, I was met with a 2 thousand line code.
+Then, I tried to deobfuscate the code via webcrack but that was unsuccessful. So I decided to open it in VS Code. It opened the entire code in 1 line, so after using js-beautify, I was met with a 2,000 line code.
 
 <p align="left">
 <img width="1280" height="720" alt="Cover" src="images/debugger.png" /> 
 </p>
 
-This took a while, but going through the beautified code, I found a few URLs sitting in readable parts. Two of them stood out: https://ipinfo.io/json and https://illitmagnetic.site/api/. The first is a public service that just returns your IP address, so I figured the malware uses it to look up the victim’s location. The second is a domain I didn’t recognize, and with the /api/ path it looks like where the malware would send data and get instructions, which is what a C2 does. So the C2 domain is `illitmagnetic.site.` Task 6 asks for the address which gets the public domain, which is the link I mentioned earlier. Therefore, the answer to ask 6 is `https://ipinfo.io/json`.
+This took a while, but going through the beautified code, I found a few URLs sitting in readable parts. Two of them stood out: https://ipinfo.io/json and https://illitmagnetic.site/api/. The first is a public service that just returns your IP address, so I figured the malware uses it to look up the victim’s location. The second is a domain I didn’t recognize, and with the /api/ path it looks like where the malware would send data and get instructions, which is what a C2 does. So the C2 domain is `illitmagnetic.site`. Task 6 asks for the address which gets the public domain, which is the link I mentioned earlier. Therefore, the answer to task 6 is `https://ipinfo.io/json`.
 
 <p align="left">
 <img width="1280" height="720" alt="Cover" src="images/tasks.png" /> 
@@ -102,7 +102,7 @@ Now I can see about 900 lines of javaScript. This code is very interesting with 
 <img alt="Cover" src="images/funct.png" /> 
 </p>
 
-In the top of the code, I saw a const named options, with an api: `https://illitmagnetic.site/api/`. I assumed this is the answer to Task 7, since it's connected to the previous domain and is a full URL. After checking it was the correct answer.
+At the top of the code, I saw a const named options, with an api: `https://illitmagnetic.site/api/`. I assumed this is the answer to Task 7, since it's connected to the previous domain and is a full URL. After checking it was the correct answer.
 - Task 8 states that the malware has a configured user_id which is sent to the C2 in the headers or body on every request. What is the key or variable name sent which contains the user_id value? 
 
 I decided to check one of the functions and try to look for a user_id, since the task says it's on every request. Here's an example: 
@@ -239,4 +239,4 @@ async function discordInjection() {
     return infectedDiscords;
 };
 ```
-In the upper part of the code, the const path has the `modules` part, and the name of the file is `discord_desktop_core-1`, which is the answer to Task 13.
+In the upper part of the code, the const path has the `modules` part, and the name of the module is `discord_desktop_core-1`, which is the answer to Task 13.
